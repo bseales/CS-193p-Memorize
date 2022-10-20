@@ -25,7 +25,11 @@ class EmojiMemoryGame: ObservableObject {
     }
     
     // MARK: - Intents
-    func choose(_ card: MemoryGame<String>.Card) {
+    func choose(_ card: MemoryGame<String>.Card) -> Void {
         model.choose(card)
+    }
+    
+    func newGame() -> Void {
+        model = EmojiMemoryGame.createMemoryGame()
     }
 }

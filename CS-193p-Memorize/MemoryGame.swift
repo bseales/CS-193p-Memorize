@@ -13,7 +13,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     private(set) var cards: Array<Card>
     private var indexOfFaceUpCard: Int?
     
-    mutating func choose(_ card: Card) {
+    mutating func choose(_ card: Card) -> Void {
         if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }),
            !cards[chosenIndex].isFaceUp,
            !cards[chosenIndex].isMatched
