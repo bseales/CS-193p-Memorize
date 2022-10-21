@@ -10,11 +10,17 @@
 import SwiftUI
 
 class EmojiMemoryGame: ObservableObject {
-    static let emojis = ["🚗", "🚙", "🏎", "🚕", "🚓", "🚜", "✈️", "🏍", "🚲", "🚀", "🛶", "🚢", "🚛", "🚑", "🚚", "🚒", "🛻", "⛵️", "🚤", "⛴"]
+    static let themes = [
+        "Vehicles": [ "🚗", "🚙", "🏎", "🚕", "🚓", "🚜", "✈️", "🏍", "🚲", "🚀", "🛶", "🚢", "🚛", "🚑", "🚚", "🚒", "🛻", "⛵️", "🚤", "⛴"],
+        "Halloween": ["🕷", "🕸", "🎃", "👻", "💀", "🍬", "🗡", "🍫"],
+        "Animals": ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸"]
+    ]
     
     static func createMemoryGame() -> MemoryGame<String> {
-        MemoryGame(numberOfPairsOfCards: 4) { pairIndex in
-            emojis[pairIndex]
+        let randomTheme = themes.randomElement()!
+        
+        return MemoryGame(numberOfPairsOfCards: min(randomTheme.value.count, 8), themeName: randomTheme.key) { pairIndex in
+            randomTheme.value[pairIndex]
         }
     }
     
@@ -24,6 +30,16 @@ class EmojiMemoryGame: ObservableObject {
         return model.cards
     }
     
+    var score: Int {
+        model.score
+    }
+    
+    var pairsRemainingZero: Bool {
+        model.pairsRemaining == 0
+    }
+    var themeName: String {
+        model.theme
+    }
     // MARK: - Intents
     func choose(_ card: MemoryGame<String>.Card) -> Void {
         model.choose(card)

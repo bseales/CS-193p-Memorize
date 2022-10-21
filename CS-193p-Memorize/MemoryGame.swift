@@ -12,6 +12,10 @@ import Foundation
 struct MemoryGame<CardContent> where CardContent: Equatable {
     private(set) var cards: Array<Card>
     private var indexOfFaceUpCard: Int?
+    private(set) var score: Int
+    private var seenCards: Array<Int>
+    private(set) var pairsRemaining: Int
+    private(set) var theme: String
     
     mutating func choose(_ card: Card) -> Void {
         if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }),
@@ -22,7 +26,21 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                 if cards[chosenIndex].content == cards[potentialMatchIndex].content {
                     cards[chosenIndex].isMatched = true
                     cards[potentialMatchIndex].isMatched = true
+                    
+                    score += 2
+                    pairsRemaining -= 1
+                } else {
+                    if seenCards[cards[chosenIndex].id] > 0 {
+                        score -= 1
+                    }
+                    if seenCards[cards[potentialMatchIndex].id] > 0 {
+                        score -= 1
+                    }
                 }
+                
+                seenCards[cards[chosenIndex].id] += 1
+                seenCards[cards[potentialMatchIndex].id] += 1
+                
                 indexOfFaceUpCard = nil
             } else {
                 for index in cards.indices {
@@ -36,15 +54,24 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         
     }
     
-    init(numberOfPairsOfCards: Int, createCardContent: (Int) -> CardContent) {
+    init(numberOfPairsOfCards: Int, themeName: String, createCardContent: (Int) -> CardContent) {
         cards = Array<Card>()
+        score = 0
+        seenCards = Array(repeating: 0, count: numberOfPairsOfCards * 2 + 1)
+        pairsRemaining = numberOfPairsOfCards
+        theme = themeName
         
         for pairIndex in 0..<numberOfPairsOfCards {
             let content = createCardContent(pairIndex)
             
             cards.append(Card(id: pairIndex * 2, content: content))
             cards.append(Card(id: pairIndex * 2 + 1, content: content))
+            
+            seenCards[pairIndex * 2] = 0
+            seenCards[pairIndex * 2 + 1] = 0
         }
+        
+        cards.shuffle()
     }
     
     struct Card: Identifiable {
