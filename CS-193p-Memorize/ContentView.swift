@@ -11,35 +11,49 @@ struct ContentView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
     
     var body: some View {
-        HStack {
-            Text("Score: \(viewModel.score)")
-            Spacer()
-            Text(viewModel.themeName)
-            Spacer()
-            Button("New Game", action: {
-                viewModel.newGame()
-            })
-        }.padding()
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                ForEach(viewModel.cards) { card in
-                    CardView(card: card)
-                        .aspectRatio(2/3, contentMode: .fit)
-                        .onTapGesture {
-                            viewModel.choose(card)
+        ZStack {
+            VStack {
+                HStack {
+                    Text("Score: \(viewModel.score)")
+                    Spacer()
+                    Text(viewModel.themeName)
+                    Spacer()
+                    Button("New Game", action: {
+                        viewModel.newGame()
+                    })
+                }.padding()
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
+                        ForEach(viewModel.cards) { card in
+                            CardView(card: card)
+                                .aspectRatio(2/3, contentMode: .fit)
+                                .onTapGesture {
+                                    viewModel.choose(card)
+                                }
                         }
+                    }
+                }
+                .foregroundColor(.red)
+                .padding(.horizontal)
+                .alert(isPresented: .constant(viewModel.pairsRemainingZero)) {
+                    Alert(title: Text("You Win!"), message: Text("Final Score: \(viewModel.score)"), dismissButton: .default (
+                        Text("New Game"), action: {
+                            viewModel.newGame()
+                        }
+                    )
+                    )
                 }
             }
-        }
-        .foregroundColor(.red)
-        .padding(.horizontal)
-        .alert(isPresented: .constant(viewModel.pairsRemainingZero)) {
-            Alert(title: Text("You Win!"), message: Text("Final Score: \(viewModel.score)"), dismissButton: .default (
-                    Text("New Game"), action: {
-                        viewModel.newGame()
-                    }
-                )
-            )
+            if viewModel.changedScore != 0 {
+                VStack() {
+                    Spacer()
+                    Text("\(viewModel.changedScore > 0 ? "+" + String(viewModel.changedScore) : String(viewModel.changedScore))")
+                        .font(.system(size:40))
+                        .foregroundColor(viewModel.changedScore > 0 ? .green : .red)
+                        
+                }
+            }
+            
         }
     }
 }

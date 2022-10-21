@@ -16,25 +16,31 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     private var seenCards: Array<Int>
     private(set) var pairsRemaining: Int
     private(set) var theme: String
+    private(set) var changedScore: Int
     
     mutating func choose(_ card: Card) -> Void {
         if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }),
            !cards[chosenIndex].isFaceUp,
            !cards[chosenIndex].isMatched
         {
+            changedScore = 0
+            
             if let potentialMatchIndex = indexOfFaceUpCard {
                 if cards[chosenIndex].content == cards[potentialMatchIndex].content {
                     cards[chosenIndex].isMatched = true
                     cards[potentialMatchIndex].isMatched = true
                     
                     score += 2
+                    changedScore = 2
                     pairsRemaining -= 1
                 } else {
                     if seenCards[cards[chosenIndex].id] > 0 {
                         score -= 1
+                        changedScore -= 1
                     }
                     if seenCards[cards[potentialMatchIndex].id] > 0 {
                         score -= 1
+                        changedScore -= 1
                     }
                 }
                 
@@ -57,6 +63,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     init(numberOfPairsOfCards: Int, themeName: String, createCardContent: (Int) -> CardContent) {
         cards = Array<Card>()
         score = 0
+        changedScore = 0
         seenCards = Array(repeating: 0, count: numberOfPairsOfCards * 2 + 1)
         pairsRemaining = numberOfPairsOfCards
         theme = themeName
