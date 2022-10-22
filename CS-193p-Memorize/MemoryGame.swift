@@ -11,12 +11,16 @@ import Foundation
 
 struct MemoryGame<CardContent> where CardContent: Equatable {
     private(set) var cards: Array<Card>
-    private var indexOfFaceUpCard: Int?
     private(set) var score: Int
     private var seenCards: Array<Int>
     private(set) var pairsRemaining: Int
     private(set) var theme: String
     private(set) var changedScore: Int
+    
+    private var indexOfFaceUpCard: Int? {
+        get { cards.indices.filter({ cards[$0].isFaceUp }).oneAndOnly }
+        set { cards.indices.forEach { cards[$0].isFaceUp = ($0 == newValue) } }
+    }
     
     mutating func choose(_ card: Card) -> Void {
         if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }),
@@ -46,22 +50,18 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                 
                 seenCards[cards[chosenIndex].id] += 1
                 seenCards[cards[potentialMatchIndex].id] += 1
-                
-                indexOfFaceUpCard = nil
+                cards[chosenIndex].isFaceUp = true
             } else {
-                for index in cards.indices {
-                    cards[index].isFaceUp = false
-                }
                 indexOfFaceUpCard = chosenIndex
             }
             
-            cards[chosenIndex].isFaceUp.toggle()
+            
         }
         
     }
     
     init(numberOfPairsOfCards: Int, themeName: String, createCardContent: (Int) -> CardContent) {
-        cards = Array<Card>()
+        cards = []
         score = 0
         changedScore = 0
         seenCards = Array(repeating: 0, count: numberOfPairsOfCards * 2 + 1)
@@ -82,9 +82,14 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     }
     
     struct Card: Identifiable {
-        var id: Int
-        var isFaceUp: Bool = false
-        var isMatched: Bool = false
-        var content: CardContent
+        let id: Int
+        var isFaceUp = false
+        var isMatched = false
+        let content: CardContent
     }
+    
+}
+
+extension Array {
+    var oneAndOnly: Element? { 1 == count ? first : nil }
 }
